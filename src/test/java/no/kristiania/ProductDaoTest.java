@@ -73,15 +73,23 @@ public class ProductDaoTest {
     // hm
     private Product sampleProduct() {
         Product product = new Product();
-        product.setInStock(true);
-        product.setName(pickOne("Samsung Galaxy", "Macbook Pro","Iphone 12", "Logitech SmartType"));
-        product.setCategory(pickOne("Smart Phone","Computer","keyboard"));
+        product.setInStock(pickOneBoolean(true,false));
+        product.setName(pickOne("Samsung Galaxy", "Macbook Pro","Iphone 12", "Logitech SmartType","Iphone Case Metal", "Dell ThinkFast"));
+        product.setPrice(pickOnePrice(789,2499,3999,5499,7999,23999));
         return product;
     }
 
     private String pickOne(String... alternatives) {
         return alternatives[new Random().nextInt(alternatives.length)];
     }
+    private int pickOnePrice(int... alternatives) {
+        return alternatives[new Random().nextInt(alternatives.length)];
+    }
+
+    private boolean pickOneBoolean(boolean... alternatives) {
+        return alternatives[new Random().nextInt(alternatives.length)];
+    }
+
     private DataSource createTestDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setURL("jdbc:postgresql://localhost:5432/product_db");

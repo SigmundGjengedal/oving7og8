@@ -3,7 +3,7 @@ package no.kristiania;
 public class Product {
     private Long id;
     private String name;
-    private String category;
+    private int price;
     private Boolean inStock;
 
     public Long getId() {
@@ -22,12 +22,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getCategory() {
-        return category;
+    public int getPrice() {
+        return price;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public Boolean getInStock() {
@@ -43,7 +43,7 @@ public class Product {
         return "Product{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", category='" + category + '\'' +
+                ", category='" + price + '\'' +
                 ", inStock=" + inStock +
                 '}' + "\r\n";
     }

@@ -67,11 +67,11 @@ public class ProductDao {
         // connection i try
         try (Connection connection = dataSource.getConnection()) {
             // lage sql-spørring
-            try (PreparedStatement statement = connection.prepareStatement("insert into products(name, category, in_stock) values (?,?,?)",
+            try (PreparedStatement statement = connection.prepareStatement("insert into products(name, price, in_stock) values (?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 // Specify value of sql statement '?'
                 statement.setString(1, product.getName());
-                statement.setString(2, product.getCategory());
+                statement.setInt(2, product.getPrice());
                 statement.setBoolean(3, product.getInStock());
                 // execute
                 statement.executeUpdate();
@@ -91,7 +91,7 @@ public class ProductDao {
         // leser verdienene fra raden inn i entiteten.
         product.setId(rs.getLong("id"));
         product.setName(rs.getString("name"));
-        product.setCategory(rs.getString("category"));
+        product.setPrice(rs.getInt("price"));
         product.setInStock(rs.getBoolean("in_stock"));
         return product;
     }
@@ -109,12 +109,12 @@ public class ProductDao {
 
         // System.out.println(dao.listAll());
 
-        /*
+
         System.out.println("Please enter a name: ");
         Scanner scanner = new Scanner(System.in);
         String searchTerm = scanner.nextLine().trim();
         System.out.println(dao.listByName(searchTerm));
-         */
+
     }
 
 
