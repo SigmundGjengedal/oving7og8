@@ -15,8 +15,29 @@ public class ProductDao {
         this.dataSource = dataSource;
     }
 
+    // metode for å  inserte data i db.
+    public void insert(Product product) throws SQLException {
+        // connection i try
+        try (Connection connection = dataSource.getConnection()) {
+            // lage sql-spørring
+            try (PreparedStatement statement = connection.prepareStatement("insert into products(name, price, in_stock) values (?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS)) {
+                // Specify value of sql statement '?'
+                statement.setString(1, product.getName());
+                statement.setInt(2, product.getPrice());
+                statement.setBoolean(3, product.getInStock());
+                // execute
+                statement.executeUpdate();
+                // må hente ut PK som ble autogeneret
+                try (ResultSet rsKeys = statement.getGeneratedKeys()) {
+                    rsKeys.next();
+                    product.setId(rsKeys.getLong("id"));
+                }
+            }
+        }
+    }
 
-
+    // metoder for å hente ut data:
     ArrayList<Product> listAll() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("select * from products")) {
@@ -27,6 +48,20 @@ public class ProductDao {
                         allProducts.add(mapProductFromRs(rs));
                     }
                     return allProducts; // returner alle products lagt til i listen.
+                }
+            }
+        }
+    }
+    public Product listById(Long id) throws SQLException {
+        // connecte til database
+        try (Connection connection = dataSource.getConnection()) {
+            // skrive sql(spørring, parameter)
+            try (PreparedStatement statement = connection.prepareStatement("select * from products where id = ?")) {
+                statement.setLong(1,id);
+                // execute sql, og lagre resultat
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    return mapProductFromRs(resultSet);
                 }
             }
         }
@@ -48,41 +83,45 @@ public class ProductDao {
         }
     }
 
-    public Product listById(Long id) throws SQLException {
+
+
+    public ArrayList<Product> listByStock(boolean inStock) throws SQLException {
         // connecte til database
         try (Connection connection = dataSource.getConnection()) {
             // skrive sql(spørring, parameter)
-            try (PreparedStatement statement = connection.prepareStatement("select * from products where id = ?")) {
-                statement.setLong(1,id);
+            try (PreparedStatement statement = connection.prepareStatement("select * from products where in_stock = ?")) {
+                statement.setBoolean(1,inStock);
                 // execute sql, og lagre resultat
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    resultSet.next();
-                    return mapProductFromRs(resultSet);
+                try (ResultSet rs = statement.executeQuery()) {
+                    ArrayList<Product> resultArray = new ArrayList<>();
+                    while(rs.next()) {
+                        resultArray.add(mapProductFromRs(rs));
+                    }
+                    return resultArray;
                 }
             }
         }
     }
 
-    public void insert(Product product) throws SQLException {
-        // connection i try
+    public ArrayList<Product> listByMaxPrice(int price) throws SQLException {
+        // connecte til database
         try (Connection connection = dataSource.getConnection()) {
-            // lage sql-spørring
-            try (PreparedStatement statement = connection.prepareStatement("insert into products(name, price, in_stock) values (?,?,?)",
-                    Statement.RETURN_GENERATED_KEYS)) {
-                // Specify value of sql statement '?'
-                statement.setString(1, product.getName());
-                statement.setInt(2, product.getPrice());
-                statement.setBoolean(3, product.getInStock());
-                // execute
-                statement.executeUpdate();
-                // må hente ut PK som ble autogeneret
-                try (ResultSet rsKeys = statement.getGeneratedKeys()) {
-                    rsKeys.next();
-                    product.setId(rsKeys.getLong("id"));
+            // skrive sql(spørring, parameter)
+            try (PreparedStatement statement = connection.prepareStatement("select * from products where price <= ?")) {
+                statement.setInt(1,price);
+                // execute sql, og lagre resultat
+                try (ResultSet rs = statement.executeQuery()) {
+                    ArrayList<Product> resultArray = new ArrayList<>();
+                    while(rs.next()) {
+                        resultArray.add(mapProductFromRs(rs));
+                    }
+                    return resultArray;
                 }
             }
         }
     }
+
+
 
     /* *************                HelpMethods        ****************************/
 
@@ -106,14 +145,20 @@ public class ProductDao {
 
     public static void main(String[] args) throws SQLException {
         ProductDao dao = new ProductDao(createDataSource() );
-
+        Scanner scanner = new Scanner(System.in);
         // System.out.println(dao.listAll());
 
-
         System.out.println("Please enter a name: ");
-        Scanner scanner = new Scanner(System.in);
         String searchTerm = scanner.nextLine().trim();
         System.out.println(dao.listByName(searchTerm));
+
+        System.out.println("Listing products by stock.  Select true or false:  ");
+        Boolean inStock = scanner.nextBoolean();
+        System.out.println(dao.listByStock(inStock));
+
+        System.out.println("Listing products by max price.  Enter a max price:  ");
+        int maxPrice = scanner.nextInt();
+        System.out.println(dao.listByMaxPrice(maxPrice));
 
     }
 
