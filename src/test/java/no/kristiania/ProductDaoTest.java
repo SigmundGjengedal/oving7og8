@@ -1,5 +1,7 @@
 package no.kristiania;
 
+import org.flywaydb.core.Flyway;
+import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -10,8 +12,15 @@ import java.util.Random;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProductDaoTest {
-    ProductDao dao = new ProductDao(createTestDataSource());
+    ProductDao dao = new ProductDao(testDataSource());
 
+    // in memory test with h2
+    private DataSource testDataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setURL("jdbc:h2:mem:persondb;DB_CLOSE_DELAY=-1")   ;
+        Flyway.configure().dataSource(dataSource).load().migrate();
+        return dataSource;
+    }
 
     @Test
     void shouldInsertAndRetrieveProducts() throws SQLException {
@@ -90,16 +99,18 @@ public class ProductDaoTest {
         return alternatives[new Random().nextInt(alternatives.length)];
     }
 
+    // før h2
     public static DataSource createTestDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setURL("jdbc:postgresql://localhost:5432/product_db");
         dataSource.setUser("product_dbuser");
         dataSource.setPassword("k%3'`(?Qu?");
-
-
-
+        // før vi gir fra oss dataSources, så ber vi flyway migrere til siste versjonen av tabellene mine.
+        Flyway.configure().dataSource(dataSource).load().migrate();
         return dataSource;
     }
+
+
 
 
 }
