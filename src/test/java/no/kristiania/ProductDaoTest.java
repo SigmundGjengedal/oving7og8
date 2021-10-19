@@ -17,8 +17,8 @@ public class ProductDaoTest {
     void shouldInsertAndRetrieveProducts() throws SQLException {
         Product p1 = sampleProduct();
         Product p2 = sampleProduct();
-        dao.insert(p1);
-        dao.insert(p2);
+        dao.insertProduct(p1);
+        dao.insertProduct(p2);
 
         assertThat(dao.listAll())
                 .extracting((Product::getId))
@@ -30,7 +30,7 @@ public class ProductDaoTest {
     void shouldRetrieveSingleProduct() throws SQLException {
 
         Product product = sampleProduct();
-        dao.insert(product);
+        dao.insertProduct(product);
         assertThat(dao.listById(product.getId()))
                 .hasNoNullFieldsOrProperties()
                 .usingRecursiveComparison()
@@ -44,8 +44,8 @@ public class ProductDaoTest {
         matchingProduct.setName("Burton");
         Product nonMatchingProduct = sampleProduct();
 
-        dao.insert(matchingProduct);
-        dao.insert(nonMatchingProduct);
+        dao.insertProduct(matchingProduct);
+        dao.insertProduct(nonMatchingProduct);
 
         assertThat(dao.listByName(matchingProduct.getName()))
                 .extracting(Product::getId)
@@ -60,8 +60,8 @@ public class ProductDaoTest {
         matchingProduct.setName("Burton");
         Product nonMatchingProduct = sampleProduct();
 
-        dao.insert(matchingProduct);
-        dao.insert(nonMatchingProduct);
+        dao.insertProduct(matchingProduct);
+        dao.insertProduct(nonMatchingProduct);
 
         assertThat(dao.listByName("Bur"))
                 .extracting(Product::getId)
@@ -90,11 +90,13 @@ public class ProductDaoTest {
         return alternatives[new Random().nextInt(alternatives.length)];
     }
 
-    private DataSource createTestDataSource() {
+    public static DataSource createTestDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setURL("jdbc:postgresql://localhost:5432/product_db");
         dataSource.setUser("product_dbuser");
         dataSource.setPassword("k%3'`(?Qu?");
+
+
 
         return dataSource;
     }

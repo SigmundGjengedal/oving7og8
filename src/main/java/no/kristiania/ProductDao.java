@@ -16,7 +16,7 @@ public class ProductDao {
     }
 
     // metode for å  inserte data i db.
-    public void insert(Product product) throws SQLException {
+    public void insertProduct(Product product) throws SQLException {
         // connection i try
         try (Connection connection = dataSource.getConnection()) {
             // lage sql-spørring
